@@ -20,3 +20,4 @@ POST /images Create a new image
 PATCH /images/&lt;id&gt; Change a specific image&#39;s attributes
 DELETE /images/&lt;id&gt; Delete a specific image
 DELETE /images Delete all images
+
