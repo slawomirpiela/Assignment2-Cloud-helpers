@@ -122,7 +122,12 @@ def images_remove_all():
     Force remove all images - dangrous!
     curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/images | python -mjson.tool
     """
-    docker('rm', '$(docker containers -q)')
+    command = docker ('ps', '-a', '-q')
+    command = command.split ('\n')
+    for i in command:
+        docker ('stop', i)
+        docker ('kill', i)
+        docker ('rm', i)
     resp = '\n Images deleted \n'
     return Response(response=resp, mimetype="application/json")
 
