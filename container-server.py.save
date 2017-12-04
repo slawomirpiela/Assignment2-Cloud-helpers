@@ -18,6 +18,7 @@ GET /containers/<id>                Inspect a specific container
 GET /containers/<id>/logs           Dump specific container logs
 GET /images                         List all images
 
+
 POST /images                        Create a new image
 POST /containers                    Create a new container
 
@@ -55,8 +56,10 @@ def images_index():
     curl -s -X GET -H 'Accept: application/json' http://localhost:8080/images | python -mjson.tool
     curl -s -X GET -H 'Accept: application/json' http://localhost:8080/images?state=running | python -mjson.tool 
     """
-    
-    output = docker ('images', '-a')     
+    if request.args.get('state')=='running':
+        output = docker('images')
+    else:
+        output = docker ('images', '-a')     
     
     resp = json.dumps(docker_images_to_array(output))
     return Response(response=resp, mimetype="application/json")
@@ -65,9 +68,10 @@ def images_index():
 def containers_show(id):
     """
     Inspect specific container
-    curl -s -X GET -H 'Accept: application/json' http://localhost:8080/containers/<containerid> | python -mjson.tool
+    output = docker ('logs',id)
+    resp = json.dumps(docker_logs_to_object(id, output))	curl -s -X GET -H 'Accept: application/json' http://localhost:8080/containers/<containerid>
     """
-    output = docker('inspect',id)
+    output = docker('inspect', id)
     
     resp = output
     return Response(response=resp, mimetype="application/json")
@@ -76,70 +80,60 @@ def containers_show(id):
 def containers_log(id):
     """
     Dump specific container logs
-    curl -s -X GET -H 'Accept: application/json' http://localhost:8080/containers/<id>/logs | python -mjson.tool
-    """
-    output = docker('logs',id)
 
-    resp = json.dumps(docker_logs_to_object(id,output))
+    """
+    resp = ''
     return Response(response=resp, mimetype="application/json")
 
-@app.route('/deleteImage/<id>', methods=['DELETE'])
+
+@app.route('/images/<id>', methods=['DELETE'])
 def images_remove(id):
     """
     Delete a specific image
-    curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteImage/<id>
     """
-    docker ('rmi','f', id)
+    docker ('rmi', id)
     resp = '{"id": "%s"}' % id
     return Response(response=resp, mimetype="application/json")
 
-@app.route('/deleteContainer/<id>', methods=['DELETE'])
+@app.route('/containers/<id>', methods=['DELETE'])
 def containers_remove(id):
     """
     Delete a specific container - must be already stopped/killed
-    curl -s -X DELETE -H 'Accept: application/json' http://localhost:8181/containers/<id>
-    """
-    docker ('rm',id)
 
-    resp = '{"id":"%s"}' % id
+    """
+    resp = ''
     return Response(response=resp, mimetype="application/json")
 
-@app.route('/deleteContainers', methods=['DELETE'])
+@app.route('/containers', methods=['DELETE'])
 def containers_remove_all():
     """
     Force remove all containers - dangrous!
-    curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/deleteContainers 
-    """
-    cmd = docker('ps','-a','-q')
-    docker('rm',cmd)
 
-    resp = '\n Containers deleted \n'
+    """
+    resp = ''
     return Response(response=resp, mimetype="application/json")
 
-@app.route('/deleteImages', methods=['DELETE'])
+@app.route('/images', methods=['DELETE'])
 def images_remove_all():
     """
     Force remove all images - dangrous!
-    curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/deleteImages
+
     """
-    command = docker ('ps', '-a', '-q')
-    command = command.split ('\n')
-    for i in command:
-        docker ('stop', i)
-        docker ('kill', i)
-        docker ('rm', i)
-    resp = '\n Images deleted \n'
+ 
+    resp = ''
     return Response(response=resp, mimetype="application/json")
+
 
 @app.route('/containers', methods=['POST'])
 def containers_create():
     """
     Create container (from existing image using id or name)
+
     curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "my-app"}'
     curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "b14752a6590e"}'
     curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "b14752a6590e","publish":"8081:22"}'
-    """
 
+    """
     body = request.get_json(force=True)
     image = body['image']
     args = ('run', '-d')
@@ -157,8 +151,11 @@ def images_create():
     """
     dockerfile = request.files['file']
     
-    resp = '\n Image created \n'
+    resp = ''
     return Response(response=resp, mimetype="application/json")
+
+
+
 
 @app.route('/containers/<id>', methods=['PATCH'])
 def containers_update(id):
@@ -198,7 +195,7 @@ def docker(*args):
         cmd.append(sub)
     process = Popen(cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate()
-    if stderr.startswith(b'Error'):
+    if stderr.startswith('Error'):
         print 'Error: {0} -> {1}'.format(' '.join(cmd), stderr)
     return stderr + stdout
 
@@ -213,10 +210,10 @@ def docker_ps_to_array(output):
     all = []
     for c in [line.split() for line in output.splitlines()[1:]]:
         each = {}
-        each['id'] = c[0].decode('utf-8')
-        each['image'] = c[1].decode('utf-8')
-        each['name'] = c[-1].decode('utf-8')
-        each['ports'] = c[-2].decode('utf-8')
+        each['id'] = c[0]
+        each['image'] = c[1]
+        each['name'] = c[-1]
+        each['ports'] = c[-2]
         all.append(each)
     return all
 
@@ -239,9 +236,9 @@ def docker_images_to_array(output):
     all = []
     for c in [line.split() for line in output.splitlines()[1:]]:
         each = {}
-        each['id'] = c[2].decode('utf-8')
-        each['tag'] = c[1].decode('utf-8')
-        each['name'] = c[0].decode('utf-8')
+        each['id'] = c[2]
+        each['tag'] = c[1]
+        each['name'] = c[0]
         all.append(each)
     return all
 
