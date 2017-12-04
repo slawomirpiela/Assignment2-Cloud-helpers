@@ -44,14 +44,14 @@ do
         "Delete a specific container")
 	echo -e "Please enter a container to delete: "
 	read container
-		curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteContainer/$container | python -mjson.tool            ;;
+		curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteContainer/$container
         "Delete all containers (including running)")
-		curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/deleteContainers | python -mjson.tool
+		curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/deleteContainers 
             ;;
         "Delete a specific image")
 	echo -e "Please enter an image to delete: "
         read $image
-		curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteImage/$image | python -mjson.tool
+		curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteImage/$image 
             ;;
         "Delete all images")
     		curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/deleteImages | python -mjson.tool
