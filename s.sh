@@ -55,7 +55,7 @@ do
 		curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteImage/$image 
             ;;
         "Delete all images")
-    		curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/deleteImages | python -mjson.tool
+    		curl -s -X DELETE -H 'Accept: application/json'/ http://localhost:8080/deleteImages
             ;;
         "Quit")
             break
