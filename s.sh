@@ -46,7 +46,7 @@ do
 	read container
 		curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteContainer/$container
 	    ;;
-        "Delete all containers (including running)"
+        "Delete all containers (including running)")
 		curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/deleteContainers
             ;;
         "Delete a specific image")
