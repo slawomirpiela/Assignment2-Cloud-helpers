@@ -97,7 +97,7 @@ def images_remove(id):
 def containers_remove(id):
     """
     Delete a specific container - must be already stopped/killed
-    curl -s -X DELETE -H 'Accept: application/json' http://localhost:8181/containers/<id>
+    curl -s -X DELETE -H 'Accept: application/json' http://localhost:8080/containers/<id>
     """
     docker ('rm',id)
 
@@ -136,8 +136,8 @@ def containers_create():
     """
     Create container (from existing image using id or name)
     curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "my-app"}'
-    curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "b14752a6590e"}'
-    curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "b14752a6590e","publish":"8081:22"}'
+    curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "<id>"}'
+    curl -X POST -H 'Content-Type: application/json' http://localhost:8080/containers -d '{"image": "<id>","publish":"80:5000"}'
     """
 
     body = request.get_json(force=True)
@@ -165,8 +165,8 @@ def containers_update(id):
     """
     Update container attributes (support: state=running|stopped)
 
-    curl -X PATCH -H 'Content-Type: application/json' http://localhost:8080/containers/b6cd8ea512c8 -d '{"state": "running"}'
-    curl -X PATCH -H 'Content-Type: application/json' http://localhost:8080/containers/b6cd8ea512c8 -d '{"state": "stopped"}'
+    curl -X PATCH -H 'Content-Type: application/json' http://localhost:8080/containers/<id> -d '{"state": "running"}'
+    curl -X PATCH -H 'Content-Type: application/json' http://localhost:8080/containers/<id> -d '{"state": "stopped"}'
 
     """
     body = request.get_json(force=True)
@@ -185,7 +185,7 @@ def images_update(id):
     """
     Update image attributes (support: name[:tag])  tag name should be lowercase only
 
-    curl -s -X PATCH -H 'Content-Type: application/json' http://localhost:8080/images/7f2619ed1768 -d '{"tag": "test:1.0"}'
+    curl -s -X PATCH -H 'Content-Type: application/json' http://localhost:8080/images/<id> -d '{"tag": "test:1.0"}'
 
     """
     resp = ''
